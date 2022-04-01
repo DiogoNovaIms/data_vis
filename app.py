@@ -3,9 +3,11 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
-app = dash.Dash(__name__)
 
+#WHATEVER YOU DO, DO NOT DELETE THIS
+app = dash.Dash(__name__)
 server = app.server
+###################################
 
 app.layout = html.Div([
     dcc.Input(id='input',
@@ -22,6 +24,7 @@ app.layout = html.Div([
 def update_output_div(input_value):
     return 'You\'ve entered "{}"'.format(input_value)
 
-
+####################
 if __name__ == '__main__':
     app.run_server(debug=True)
+####################
