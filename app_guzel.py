@@ -5,14 +5,13 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-import scripts.utilds_data as ud
+
 ############################################################Data##############################################################
 
 #path = r'C:\Users\bayaz\Documents\NOVA\Data Visualization\Project code'
 path = ''
 
-raw_dataset_path = ud.RAW_PATH + ud.config['path']['name']
-df = pd.read_csv(raw_dataset_path)
+df = pd.read_csv(path + "GlobalLandTemperaturesByCountry_clean.csv")
 
 ######################################################Interactive Components############################################
 
@@ -58,9 +57,6 @@ app.layout = html.Div([
             html.Label('Country Choice'),
             dropdown_country,
             html.Br(),
-            html.Label('Year Slider'),
-            slider_year,
-            html.Br(),
             html.Label('Projection'),
             radio_projection,
             html.Br(),
@@ -69,6 +65,9 @@ app.layout = html.Div([
   html.Div([
        html.Div([
            dcc.Graph(id='choropleth'),
+            html.Label('Year Slider'),
+            slider_year,
+            html.Br(),
            ], id='Map', className='pretty_box')
        ], id='Else', style={'width': '70%'})
     ], id='2nd row', style={'display': 'flex'})
