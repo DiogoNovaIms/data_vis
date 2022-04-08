@@ -12,7 +12,7 @@ import json
 mapbox_token = "pk.eyJ1IjoibTIwMjEwNjMzIiwiYSI6ImNsMW5yNGQ0bjB2OHgzY29ibWo5ZXoxbnIifQ.7h2zkrNJdHMVS9UiflpyVQ"
 
 #Load dataset
-df_countries = pd.read_csv("GlobalLandTemperaturesByCountry_clean.csv")
+df_countries = pd.read_csv("GlobalLandTemperaturesByCountry+GHG.csv")
 
 world_path = 'custom.geo.json'
 with open(world_path) as f:
