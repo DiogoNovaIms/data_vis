@@ -14,7 +14,8 @@ def get_map_from_date(df_raw,date):
 
 def get_yearly_data(df_raw):
 
-    df = df_raw.groupby(["year","Country"]).mean().reset_index()
+    df = df_raw.loc[df_raw["year"]>=1900]
+    df = df.groupby(["year","Country"]).mean().reset_index()
 
 
     return df
