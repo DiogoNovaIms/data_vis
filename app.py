@@ -10,8 +10,6 @@ from dash import html
 from dash.dependencies import Input, Output
 
 #Logging info
-import logging
-import logzero
 from logzero import logger
 
 #for custom scripts
@@ -30,8 +28,6 @@ app.layout = html.Div([
     dcc.Graph(
         id='map',
         figure=world['figure'],
-        config={'scrollZoom': False},
-        style={'width': '100vw', 'height': '100vh'}
     )
 ])
 
@@ -40,6 +36,7 @@ app.layout = html.Div([
 #    Output(component_id='div', component_property='children'),
 #    [Input(component_id='input', component_property='value')]
 #)
+
 #def update_output_div(input_value):
 #    return 'You\'ve entered "{}"'.format(input_value)
 
