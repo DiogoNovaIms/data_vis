@@ -39,7 +39,7 @@ def create_map(df,mapbox_token,geo_json):
     )
 
     fig_layout = go.Layout(
-        mapbox_style="light",
+        mapbox_style="dark",
         mapbox_accesstoken=mapbox_token,
         mapbox_center={"lat": 37.0902, "lon": -95.7129},
         margin={"r":0,"t":0,"l":0,"b":0},
@@ -105,7 +105,7 @@ def create_map(df,mapbox_token,geo_json):
         slider_step = dict(
             args=[[str(year)],
             dict(mode="immediate",
-            frame=dict(duration=100,
+            frame=dict(duration=10000,
             redraw=True))],
             method="animate",
             label=str(year)
