@@ -28,6 +28,7 @@ app.layout = html.Div([
     dcc.Graph(
         id='map',
         figure=world['figure'],
+        style={'width':'100vw','height':'100vh'}
     )
 ])
 
