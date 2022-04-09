@@ -84,6 +84,8 @@ app.layout = html.Div([
   html.Div([
        html.Div([
             dcc.Graph(id='disasters'),
+           ],id='Graph1', style={'width': '50%'}, className='pretty_box'),
+       html.Div([
             html.Label('Year Drop'),
             dropdown_year,
             html.Br(),
@@ -149,7 +151,7 @@ def plots(n_clicks, projection, year, Year):
     disasters_0 = disasters.loc[disasters['Year'] == Year]
 
     fig_disasters = px.scatter(disasters_0, x=disasters_0["AverageTemperature"], y=disasters_0["GHG"],
-               size=disasters_0["Disasters"], color=disasters_0["Continent"],
+               size=disasters_0["Disasters"], color=disasters_0["continent"],
                hover_name=disasters_0["Country"], log_x=False, size_max=60)
 
     layout_disasters = dict(title=dict(text='All Natural Disasters from 1900 until 2021'),
