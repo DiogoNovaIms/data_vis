@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import plotly.express as px
 
 ############################################################Data##############################################################
 
@@ -13,9 +14,14 @@ path = ''
 
 df = pd.read_csv(path + "GlobalLandTemperaturesByCountry_clean.csv")
 
+disasters = pd.read_csv(path + 'Disasters.csv')
+
 ######################################################Interactive Components############################################
 
 country_options = [dict(label=country, value=country) for country in df['Country'].unique()]
+
+year_option = [dict(label=Year, value=Year) for Year in disasters['Year'].unique()]
+
 
 dropdown_country = dcc.Dropdown(
         id='country_drop',
@@ -33,7 +39,11 @@ slider_year = dcc.Slider(
         value=df['year'].min(),
         step=1
     )
-
+dropdown_year = dcc.Dropdown(
+        id='year_option',
+        options=year_option,
+        value=disasters['Year'],
+    )
 
 radio_projection = dcc.RadioItems(
         id='projection',
@@ -70,22 +80,35 @@ app.layout = html.Div([
             html.Br(),
            ], id='Map', className='pretty_box')
        ], id='Else', style={'width': '70%'})
-    ], id='2nd row', style={'display': 'flex'})
+    ], id='2nd row', style={'display': 'flex'}),
+  html.Div([
+       html.Div([
+            dcc.Graph(id='disasters'),
+            html.Label('Year Drop'),
+            dropdown_year,
+            html.Br(),
+       ])
+  ])
 ])
 ######################################################Callbacks#########################################################
 @app.callback(
+    [
         Output("choropleth", "figure"),
+        Output("disasters", "figure")
+    ],
     [
         Input("button", "n_clicks")
     ],
     [
         State("projection", "value"),
         State("year_slider", "value"),
+        State("year_option", "value")
     ]
 )
 
-#############################################Second Choropleth######################################################
-def plots(n_clicks, projection, year):
+
+def plots(n_clicks, projection, year, Year):
+#############################################First Choropleth######################################################
 
     df_short = df.loc[(df['year'] == year)].groupby(['Country'])[['AverageTemperature']].mean().reset_index()
 
@@ -122,7 +145,28 @@ def plots(n_clicks, projection, year):
                              ),
                              paper_bgcolor='#f9f9f9'
                              )
-    return go.Figure(data=data_choropleth, layout=layout_choropleth)
+############################################Second Plot##########################################################
+    disasters_0 = disasters.loc[disasters['Year'] == Year]
+
+    fig_disasters = px.scatter(disasters_0, x=disasters_0["AverageTemperature"], y=disasters_0["GHG"],
+               size=disasters_0["Disasters"], color=disasters_0["Continent"],
+               hover_name=disasters_0["Country"], log_x=False, size_max=60)
+
+    layout_disasters = dict(title=dict(text='All Natural Disasters from 1900 until 2021'),
+                            xaxis=dict(title='Average Temperature'),
+                            yaxis=dict(title="GHG Emission",
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            plot_bgcolor='rgba(0,0,0,0)'
+                      ))
+
+
+
+
+
+
+    return go.Figure(data=data_choropleth, layout=layout_choropleth), \
+           go.Figure(data=fig_disasters, layout=layout_disasters)
+
 
 
 if __name__ == '__main__':
