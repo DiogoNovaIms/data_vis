@@ -2,7 +2,6 @@ import json
 import numpy as np
 import pandas as pd
 from plotly import graph_objs as go
-import plotly.express as px
 import utilds_data as ud
 from logzero import logger
 
@@ -15,12 +14,24 @@ def get_map_from_date(df_raw,date):
 def get_yearly_data(df_raw):
 
     df = df_raw.loc[df_raw["year"]>=1900]
-    df = df.groupby(["year","Country"]).mean().reset_index()
-
+    df["AverageTemperature"] = df["AverageTemperature"].round(2)
+    df["temp_diff"] = df["temp_diff"].round(2)
+    #df = df.groupby(["year","Country"]).mean().reset_index()
 
     return df
 
-def create_map(df,mapbox_token,geo_json):
+def get_temperature_diff_between(df_by_year,start_date,end_date):
+
+    df = df_by_year.loc[(df_by_year["year"] >= start_date) & 
+                        (df_by_year["year"] <= end_date)].groupby(["Country"]).sum().reset_index()
+
+    df["temp_diff"] = df["temp_diff"].round(2)
+                  
+    
+    return df
+
+
+def create_map(df,mapbox_token,geo_json,attribute):
 
     years = np.sort(df["year"].unique())
     plot_df = df[df["year"]==years[-1]]
@@ -28,12 +39,13 @@ def create_map(df,mapbox_token,geo_json):
     fig_data = go.Choroplethmapbox(
         geojson=geo_json,
         locations=plot_df["Country"],
-        z=plot_df["AverageTemperature"],
-        zmin=df["AverageTemperature"].min(),
-        zmax=df["AverageTemperature"].max(),
-        customdata=plot_df["AverageTemperature"],
+        z=plot_df[attribute],
+        zmin=df[attribute].min(),
+        zmax=df[attribute].max(),
+        customdata=plot_df[attribute],
         name="",
         text=plot_df["Country"],
+        hovertemplate="%{text}<br>Average Temperature: %{customdata}°C",
         colorscale="YlOrRd",
         colorbar=dict(outlinewidth=1,
             outlinecolor="#333333",
@@ -108,8 +120,8 @@ def create_map(df,mapbox_token,geo_json):
         frame = go.Frame(data=[
             go.Choroplethmapbox(
                 locations=plot_df["Country"],
-                z=plot_df["AverageTemperature"],
-                customdata=plot_df["AverageTemperature"],
+                z=plot_df[attribute],
+                customdata=plot_df[attribute],
                 name="",
                 text=plot_df["Country"],
         
@@ -150,7 +162,10 @@ if __name__ == "__main__":
 
     df = get_yearly_data(df_raw)
     #Create the map figure
-    fig_map = create_map(df,mapbox_token,world)   
+
+    #df = get_temperature_diff_between(df,1900,2000)
+    fig_map = create_map(df,mapbox_token,world,"AverageTemperature")   
+
 
     save_map = {
         'figure':fig_map,
