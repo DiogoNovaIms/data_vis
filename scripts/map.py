@@ -5,57 +5,33 @@ from plotly import graph_objs as go
 import utilds_data as ud
 from logzero import logger
 
-def get_map_from_date(df_raw,date):
+def get_map_from_date(df_raw,mapbox_token,geo_json,date="2010-01-01",attribute="AverageTemperature"):
 
-    df = df_raw.loc[df_raw["dt"]==date]
-
-    return df
-
-def get_yearly_data(df_raw):
-
-    df = df_raw.loc[df_raw["year"]>=1900]
-    df["AverageTemperature"] = df["AverageTemperature"].round(2)
-    df["temp_diff"] = df["temp_diff"].round(2)
-    #df = df.groupby(["year","Country"]).mean().reset_index()
-
-    return df
-
-def get_temperature_diff_between(df_by_year,start_date,end_date):
-
-    df = df_by_year.loc[(df_by_year["year"] >= start_date) & 
-                        (df_by_year["year"] <= end_date)].groupby(["Country"]).sum().reset_index()
-
-    df["temp_diff"] = df["temp_diff"].round(2)
-                  
-    
-    return df
-
-
-def create_map(df,mapbox_token,geo_json,attribute):
-
-    years = np.sort(df["year"].unique())
-    plot_df = df[df["year"]==years[-1]]
+    plot_df = df_raw.loc[df_raw["dt"]==date]
 
     fig_data = go.Choroplethmapbox(
         geojson=geo_json,
         locations=plot_df["Country"],
         z=plot_df[attribute],
-        zmin=df[attribute].min(),
-        zmax=df[attribute].max(),
+        zmin=-40,
+        zmax=40,
         customdata=plot_df[attribute],
         name="",
         text=plot_df["Country"],
         hovertemplate="%{text}<br>Average Temperature: %{customdata}°C",
-        colorscale="YlOrRd",
+        colorscale="RdBu",
+        reversescale=True,
         colorbar=dict(outlinewidth=1,
             outlinecolor="#333333",
             len=0.9,
             lenmode="fraction",
-            xpad=30,
-            xanchor="right",
+            orientation="h",
+            xanchor="center",
+            yanchor="bottom",
             bgcolor=None,
-            title=dict(text="Cases",
-                        font=dict(size=14))
+            y=0.05,
+            #title=dict(text="Cases",
+            #            font=dict(size=14))
         )
             #tickvals=[0,1,2,3,4,5,6],
             #ticktext=["1", "10", "100", "1K", "10K", "100K", "1M"],
@@ -73,6 +49,125 @@ def create_map(df,mapbox_token,geo_json,attribute):
         margin={"r":0,"t":0,"l":0,"b":0},
     )
 
+    months = []
+    for k,v in ud.MONTH_LIST.items():
+        button = dict(
+            args=["month",v],
+            label=k,
+            method="restyle"
+        ) 
+        months.append(button)
+                
+
+    fig_layout["updatemenus"] = [dict(
+        type="dropdown",
+        buttons= months,
+        direction="up",
+        showactive=True,
+        xanchor="center",
+        y=0.2,
+        x=0.5,
+        bgcolor = "rgba(0,0,0,0)",
+        bordercolor = "rgba(0,0,0,0)",
+        font = dict(
+            color = "black",
+        ),
+    )]
+
+    #fig_layout["annotations"] = [dict(
+    #    text="Trace type:", showarrow=False,
+    #    x=0, y=1.085, yref="paper", align="left"
+    #)]
+
+    fig=go.Figure(data=fig_data,layout=fig_layout)
+
+    return fig
+
+
+
+def get_yearly_data(df_raw):
+
+    df = df_raw.loc[df_raw["year"]>=1900]
+    df["AverageTemperature"] = df["AverageTemperature"].round(2)
+    df["temp_diff"] = df["temp_diff"].round(2)
+    df["GHG"] = df["GHG"].round(2)
+    df["GHG"] = df["GHG"].fillna(0)
+
+    #df = df.groupby(["year","Country"]).mean().reset_index()
+
+    return df
+
+def get_temperature_diff_between(df_by_year,start_date,end_date):
+
+    df = df_by_year.loc[(df_by_year["year"] >= start_date) & 
+                        (df_by_year["year"] <= end_date)].groupby(["Country"]).sum().reset_index()
+
+    df["temp_diff"] = df["temp_diff"].round(2)
+                  
+    
+    return df
+
+def create_map_new(df,mapbox_token,geo_json,attribute):
+    fig = go.Figure
+
+    years = np.sort(df["year"].unique())
+    plot_df = df[df["year"]==years[-1]]
+
+    fig_data = [
+        go.Choroplethmapbox(
+        geojson=geo_json,
+        locations=plot_df["Country"],
+        z=plot_df[attribute],
+        zmin=-40,
+        zmax=40,
+        customdata=plot_df[attribute],
+        name="",
+        text=plot_df["Country"],
+        hovertemplate="%{text}<br>Average Temperature: %{customdata}°C",
+        colorscale="RdBu",
+        reversescale=True,
+        showscale=False,
+        colorbar=dict(outlinewidth=1,
+            outlinecolor="#333333",
+            len=0.9,
+            lenmode="fraction",
+            orientation="h",
+            xanchor="center",
+            yanchor="bottom",
+            bgcolor=None,
+            y=0.05,
+            #title=dict(text="Cases",
+            #            font=dict(size=14))
+        )
+    ),
+
+    
+    go.Scattermapbox(
+        lat = plot_df["Latitude"],
+        lon = plot_df["Longitude"],
+        mode = "markers+text",
+        marker=go.scattermapbox.Marker(
+            size= plot_df["GHG"]*300/df["GHG"].max(),
+            sizemin=2,
+            opacity=0.7
+        ),
+        text=plot_df["Country"],
+        marker_color = "rgb(235,0,100)",
+    )
+    ]
+
+    #Layout
+    fig_layout = go.Layout(
+        mapbox_style="light",
+        mapbox_accesstoken=mapbox_token,
+        #mapbox_center={"lat": 37.0902, "lon": -95.7129},
+        margin={"r":0,"t":0,"l":0,"b":0},
+        dragmode=False,
+
+    )
+
+
+    #Update menus
     fig_layout["updatemenus"] = [dict(
         type="buttons",
         buttons=[dict(
@@ -99,7 +194,6 @@ def create_map(df,mapbox_token,geo_json,attribute):
         yanchor="top"
     )]
 
-    
     sliders_dict = dict(active=len(years) - 1,
                         visible=True,
                         yanchor="top",
@@ -124,8 +218,23 @@ def create_map(df,mapbox_token,geo_json,attribute):
                 customdata=plot_df[attribute],
                 name="",
                 text=plot_df["Country"],
+                showscale=False,
         
-            )],
+            ),
+            go.Scattermapbox(
+                lat = plot_df["Latitude"],
+                lon = plot_df["Longitude"],
+                mode = "markers+text",
+                marker=go.scattermapbox.Marker(
+                    size= plot_df["GHG"]*300/df["GHG"].max(),
+                    sizemin=2,
+                    opacity=0.7
+        ),
+        text=plot_df["Country"],
+        marker_color = "rgb(235,0,100)",
+    )
+
+            ],
             name=str(year))
 
         fig_frames.append(frame)
@@ -141,12 +250,14 @@ def create_map(df,mapbox_token,geo_json,attribute):
 
         sliders_dict["steps"].append(slider_step)
         
-    
+    fig_layout.update(coloraxis_showscale=False)
     fig_layout.update(sliders=[sliders_dict])
 
     fig = go.Figure(data=fig_data, layout=fig_layout, frames=fig_frames)
-        
+
+
     return fig
+
 
 if __name__ == "__main__":
 
@@ -160,12 +271,12 @@ if __name__ == "__main__":
     with open(geo_world) as world_file:
         world = json.load(world_file)
 
-    df = get_yearly_data(df_raw)
+    df_raw = get_yearly_data(df_raw)
     #Create the map figure
 
     #df = get_temperature_diff_between(df,1900,2000)
-    fig_map = create_map(df,mapbox_token,world,"AverageTemperature")   
-
+    fig_map = create_map_new(df_raw,mapbox_token,world,"AverageTemperature")   
+    #fig_map = get_map_from_date(df_raw,mapbox_token,world)
 
     save_map = {
         'figure':fig_map,

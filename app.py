@@ -15,6 +15,9 @@ from logzero import logger
 #for custom scripts
 import scripts.utilds_data as ud
 
+#Date
+from datetime import date
+
 world = ud.load_pickle("map_info.p")
 
 
@@ -25,18 +28,19 @@ server = app.server
 ###################################
 
 app.layout = html.Div([
+    html.Div(id='output-container-date-picker-single'),
     dcc.Graph(
         id='map',
         figure=world['figure'],
-        style={'width':'100vw','height':'100vh'}
-    )
+        style={'width':'99vw','height':'97vh'}
+    ),
+    
 ])
 
 
 #@app.callback(
-#    Output(component_id='div', component_property='children'),
-#    [Input(component_id='input', component_property='value')]
-#)
+#    Output('map', 'children'),
+#    Input('my-date-picker-single', 'date'))
 
 #def update_output_div(input_value):
 #    return 'You\'ve entered "{}"'.format(input_value)
