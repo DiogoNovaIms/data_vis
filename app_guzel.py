@@ -87,6 +87,7 @@ app.layout = html.Div([
             html.Br(),
             html.P("Select a disaster category", className="control_label",style={"text-align": "center","font-weight":"bold"}),
                         radio_disaster_option,
+            html.Br(),
             html.Button('Submit', id='button')
         ], id='Iteraction', style={'width': '30%'}, className='pretty_box'),
   html.Div([
