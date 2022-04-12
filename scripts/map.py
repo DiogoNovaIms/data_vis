@@ -10,6 +10,7 @@ def get_map_from_date(df_raw,mapbox_token,geo_json,date="2010-01-01",attribute="
 
     plot_df = df_raw.loc[df_raw["dt"]==date]
 
+
     fig_data = go.Choroplethmapbox(
         geojson=geo_json,
         locations=plot_df["Country"],
@@ -49,6 +50,8 @@ def get_map_from_date(df_raw,mapbox_token,geo_json,date="2010-01-01",attribute="
         #mapbox_center={"lat": 37.0902, "lon": -95.7129},
         margin={"r":0,"t":0,"l":0,"b":0},
     )
+
+    
 
     months = []
     for k,v in ud.MONTH_LIST.items():
@@ -158,6 +161,9 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
     ]
 
 
+    fig_subplots = make_subplots(rows=2,cols=1,shared_yaxes=True,vertical_spacing=0.25)
+
+
     #Layout
     fig_layout = go.Layout(
         mapbox_style="light",
@@ -165,7 +171,6 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         #mapbox_center={"lat": 37.0902, "lon": -95.7129},
         margin={"r":0,"t":0,"l":0,"b":0},
     )
-
 
     #Update menus
     fig_layout["updatemenus"] = [dict(
@@ -229,10 +234,10 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
                     size= plot_df["GHG"]*300/df["GHG"].max(),
                     sizemin=2,
                     opacity=0.7
-        ),
-        text=plot_df["Country"],
-        marker_color = "rgb(235,0,100)",
-    )
+                ),
+                text=plot_df["Country"],
+                marker_color = "rgb(235,0,100)",
+            )
 
             ],
             name=str(year))
@@ -255,6 +260,9 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
 
 
     fig = go.Figure(data=fig_data, layout=fig_layout, frames=fig_frames)
+
+    fig_subplots.add_trace(fig_data,row=1,col=1)
+
 
 
     return fig
