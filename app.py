@@ -35,6 +35,10 @@ app.layout = html.Div([
         style={'width':'99vw','height':'97vh'}
     ),
     
+    #html.Img(
+        #src=app.get_asset_url("colorbar.png"),
+        #style={'height':'50%','width':'70%','textAlign':'center'}
+        #)
 ])
 
 

@@ -4,6 +4,7 @@ import pandas as pd
 from plotly import graph_objs as go
 import utilds_data as ud
 from logzero import logger
+from plotly.subplots import make_subplots
 
 def get_map_from_date(df_raw,mapbox_token,geo_json,date="2010-01-01",attribute="AverageTemperature"):
 
@@ -153,8 +154,9 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         ),
         text=plot_df["Country"],
         marker_color = "rgb(235,0,100)",
-    )
+    ),
     ]
+
 
     #Layout
     fig_layout = go.Layout(
@@ -162,8 +164,6 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         mapbox_accesstoken=mapbox_token,
         #mapbox_center={"lat": 37.0902, "lon": -95.7129},
         margin={"r":0,"t":0,"l":0,"b":0},
-        dragmode=False,
-
     )
 
 
@@ -249,9 +249,10 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         )
 
         sliders_dict["steps"].append(slider_step)
-        
-    fig_layout.update(coloraxis_showscale=False)
+
+    
     fig_layout.update(sliders=[sliders_dict])
+
 
     fig = go.Figure(data=fig_data, layout=fig_layout, frames=fig_frames)
 
