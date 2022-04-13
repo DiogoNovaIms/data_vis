@@ -1,68 +1,44 @@
+#General
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+import plotly.express as px
+
+#Dash
 import dash
 from dash import dcc
 from dash import html
-from dash.dependencies import Input, Output, State
-import numpy as np
-import pandas as pd
-import plotly.graph_objs as go
-import plotly.express as px
+from dash.dependencies import Input, Output
+
+#Logging info
+from logzero import logger
+
+#for custom scripts
+import scripts.utilds_data as ud
+
+#Date
+from datetime import date
 
 ############################################################Data##############################################################
 
-#path = r'C:\Users\bayaz\Documents\NOVA\Data Visualization\Project code'
-path = ''
 
-df = pd.read_csv(path + "GlobalLandTemperaturesByCountry+GHG.csv")
+raw_dataset_path = ud.RAW_PATH + ud.config['path']['correlation']
+df = pd.read_csv(raw_dataset_path)
 
-disasters = pd.read_csv(path + 'Disasters.csv')
-
-nat_dis = pd.read_csv(path + '1900_2021_DISASTERS.xlsx - emdat data.csv')
 
 ######################################################Interactive Components############################################
 
-country_options = [dict(label=country, value=country) for country in df['Country'].unique()]
 
-year_option = [dict(label=Year, value=Year) for Year in disasters['Year'].unique()]
-
-disaster_option = [dict(label=disaster, value=disaster) for disaster in nat_dis['Disaster Type'].unique()]
-
-
-dropdown_country = dcc.Dropdown(
-        id='country_drop',
-        options=country_options,
-        value=['Portugal'],
-        multi=True
-    )
-
-radio_disaster_option = dcc.RadioItems(
-    id='disaster_types',
-    options=disaster_option,
-    value="Drought",
-    labelStyle={'display': 'block', "text-align": "justify"}
-
-)
-
-slider_year = dcc.Slider(
+slider_year = dcc.RangeSlider(
         id='year_slider',
         min=df['year'].min(),
         max=df['year'].max(),
         marks={str(i): '{}'.format(str(i)) for i in
-               [1743, 1797, 1851, 1905, 1959, 2013]},
-        value=df['year'].min(),
+               [1960, 1970, 1980, 1990, 2000, 2013]},
+        value=[1970, 2000],
         step=1
     )
-dropdown_year = dcc.Dropdown(
-        id='year_option',
-        options=year_option,
-        value=disasters["Year"]
-    )
 
-radio_projection = dcc.RadioItems(
-        id='projection',
-        options=[dict(label='Equirectangular', value=0),
-                 dict(label='Orthographic', value=1)],
-        value=0
-    )
 ##################################################APP###################################################################
 
 app = dash.Dash(__name__)
@@ -71,172 +47,60 @@ server = app.server
 
 app.layout = html.Div([
 
-  html.Div([
-        html.H1('Climate Change Dashboard'),
-    ], id='1st row', className='pretty_box'),
-  html.Div([
+    html.Div([
         html.Div([
-            html.Label('Country Choice'),
-            dropdown_country,
+            dcc.Graph(id='correlation_graph'),
+        ], id='Graph1', style={'width': '50%'}, className='pretty_box'),
+    ], id='3th row', style={'display': 'flex'}),
+    html.Div([
             html.Br(),
-            html.Label('Year'),
-            dropdown_year,
-            html.Br(),
-            html.Label('Projection'),
-            radio_projection,
-            html.Br(),
-            html.P("Select a disaster category", className="control_label",style={"text-align": "center","font-weight":"bold"}),
-                        radio_disaster_option,
-            html.Br(),
-            html.Button('Submit', id='button')
-        ], id='Iteraction', style={'width': '30%'}, className='pretty_box'),
-  html.Div([
-       html.Div([
-           dcc.Graph(id='choropleth'),
-            html.Label('Year Slider'),
-            slider_year,
-            html.Br(),
-           ], id='Map', className='pretty_box')
-       ], id='Else', style={'width': '70%'})
-    ], id='2nd row', style={'display': 'flex'}),
-  html.Div([
-       html.Div([
-            dcc.Graph(id='disasters'),
-           ],id='Graph1', style={'width': '50%'}, className='pretty_box'),
-       html.Div([
-            dcc.Graph(id='bar_graph1'),
-           ], id='Graph2', style={'width': '100%'}, className='pretty_box'),
-       html.Div([
-            dcc.Graph(id='bar_graph2'),
-           ], id='Graph3', style={'width': '100%'}, className='pretty_box'),
-       ])
-  ])
+                html.Label('Year Range Slider'),
+                slider_year
+    ], style={'width': '50%'})
+])
+
+
 
 ######################################################Callbacks#########################################################
+
 @app.callback(
     [
-        Output("choropleth", "figure"),
-        Output("disasters", "figure"),
-        Output("bar_graph1", "figure"),
-        Output("bar_graph2", "figure")
+        Output("correlation_graph", "figure"),
     ],
     [
-        Input("button", "n_clicks")
-    ],
-    [
-        State("projection", "value"),
-        State("year_slider", "value"),
-        State("year_option", "value"),
-        State("country_drop", "value")
+        Input("year_slider", "value"),
+        Input("year_slider", "value")
     ]
 )
 
+def plots(start_date, end_date):
+############################################First Bar Plot##########################################################
 
-def plots(n_clicks, projection, year, Year, countries):
-#############################################First Choropleth######################################################
-
-    df_short = df.loc[(df['year'] == year)].groupby(['Country'])[['AverageTemperature']].mean().reset_index()
-
-    z = df_short['AverageTemperature']
-
-    data_choropleth = dict(type='choropleth',
-                           locations=df_short['Country'],
-                           locationmode='country names',
-                           z=z,
-                           text=df_short['Country'],
-                           colorscale='inferno',
-                           colorbar=dict(title='Average Temperature'),
-
-                           hovertemplate='Country %{text} <br>''Average Temperature: %{z}',
-                           name=''
-                           )
-
-    layout_choropleth = dict(geo=dict(scope='world',  # default
-                                      projection=dict(type=['equirectangular', 'orthographic'][projection]
-                                                      ),
-                                      # showland=True,   # default = True
-                                      landcolor='black',
-                                      lakecolor='white',
-                                      showocean=True,  # default = False
-                                      oceancolor='azure',
-                                      bgcolor='#f9f9f9'
-                                      ),
-
-                             title=dict(
-                                 text='World Choropleth Map on the year ' + str(
-                                     year),
-                                 x=.5  # Title relative position according to the xaxis, range (0,1)
-
-                             ),
-                             paper_bgcolor='#f9f9f9'
-                             )
-############################################Second Plot##########################################################
-    disasters_0 = disasters.loc[disasters['Year'] == Year]
-
-    fig_disasters = px.scatter(disasters_0, x=disasters_0["AverageTemperature"], y=disasters_0["GHG"],
-               size=disasters_0["Disasters"], color=disasters_0["continent"],
-               hover_name=disasters_0["Country"], log_x=False, size_max=60)
-
-    layout_disasters = dict(title=dict(text='All Natural Disasters from 1900 until 2021'),
-                            xaxis=dict(title='Average Temperature'),
-                            yaxis=dict(title="GHG Emission",
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)'
-                      ))
-
-############################################Third Bar Plot##########################################################
-
-    data_bar = []
-    for country in countries:
-        df_bar = df.loc[(df['Country'] == country)]
-
-        x_bar = df_bar['year']
-        y_bar = df_bar["AverageTemperature"]
-
-        data_bar.append(dict(type='bar', x=x_bar, y=y_bar, name=country))
-
-    layout_bar = dict(title=dict(text='Average Temperature from 1743 to 2013'),
-                      yaxis=dict(title='Average Temperature'),
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)'
-                      )
-
-############################################Fourth Bar Plot##########################################################
-
-    df_bar = df.loc[(df['year'] == year)].groupby(['Country'])[["GHG", "AverageTemperature"]].mean().reset_index()
-
-    fig_bar = go.Figure()
-    fig_bar.add_trace(go.Bar(
-        x=df_bar["Country"],
-        y=np.log(df_bar["GHG"]),
-        name="GHG EMission",
-        marker_color='#0d0887'
-    ))
-
-    fig_bar.add_trace(go.Bar(
-        x=df_bar["Country"],
-        y=df_bar["AverageTemperature"],
-        name="Average Temperature",
-        marker_color='#fdca26'
-    ))
-
-
-    # Here we modify the tickangle of the xaxis, resulting in rotated labels.
-    fig_bar.update_layout(barmode='group', xaxis_tickangle=-45)
-    fig_bar.update_layout(plot_bgcolor='white')
-    fig_bar.update_yaxes(showline=True, linewidth=2, linecolor='black', gridcolor='grey')
-    fig_bar.update_xaxes(showline=True, linewidth=2, linecolor='black')
-
-    return go.Figure(data=data_choropleth, layout=layout_choropleth), \
-           go.Figure(data=fig_disasters, layout=layout_disasters), \
-           go.Figure(data=data_bar, layout=layout_bar), \
-           go.Figure(data=fig_bar)
+    df_0 = df.loc[(df["year"] >= start_date) &
+                        (df["year"] <= end_date)].groupby(["Country", "continent"]).agg(
+        {"gdp": np.sum, "AverageTemperature": np.mean, "GHG": np.sum, "temp_diff": np.sum}).reset_index()
 
 
 
+    corr_fig = px.scatter(df_0, x="temp_diff", y="GHG", color="continent", template="simple_white", hover_name="Country",
+                             size="gdp_test", size_max=80,
+                             labels={
+                                 "temp_diff": "Increase in average temperature",
+                                 "GHG": "Greenhouse Gases Emissions"
+
+                             },)
+
+    corr_layout = dict(title=dict(text='Correlation between average temperature difference and GHG Emissions '),
+                                    xaxis=dict(title='Average Temperature'),
+                                    yaxis=dict(title="GHG Emission",
+                                    paper_bgcolor='rgba(0,0,0,0)',
+                                    plot_bgcolor='rgba(0,0,0,0)'
+                              ))
+
+    return go.Figure(data=corr_fig, layout=corr_layout)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
 
 
-  
+
