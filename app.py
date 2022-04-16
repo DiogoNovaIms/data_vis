@@ -110,7 +110,7 @@ def update_graph(year):
            hover_name="Country", log_x=False, log_y=True, size_max=100, range_x =[-3,5],
                   labels={
                      "temp_diff": "Increase in average temperature between " + str(year[0]) + " and " + str(year[1]),
-                     "GHG": "Greenhouse Gases Emissions"
+                     "GHG": "Greenhouse Gases Emissions (log10 scale)"
                       }, custom_data=['Country', 'gdp'])
 
     corr_fig.add_vline(x=0,line_width=1, line_dash="dash",opacity=0.7)
@@ -130,6 +130,8 @@ def update_graph(year):
             "Greenhouse Gases Emissions: %{y}",
         ])
     )
+
+    corr_fig.update_yaxes(type="log", range=[0, 20])  # log range: 10^0=1, 10^20=100000000000000000000
 
     return go.Figure(data=corr_fig, layout=corr_layout)
 
