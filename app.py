@@ -70,17 +70,14 @@ app.layout = html.Div([
     html.Br(),
         html.Div([
             html.Div([
-                html.H3('Correlation between average temperature difference and GHG Emissions'),
-                    ], id='3d row', className='pretty_box'),
-                html.Div([
-                    dcc.Graph(id='correlation_graph'),
-                ], id='Graph1', style={'width': '50%'}, className='pretty_box'),
-            ], id='3th row'),
-                html.Div([
-                        html.Br(),
-                            html.Label('Year Range Slider'),
-                            slider_year
-        ], style={'width': '45%'})
+                dcc.Graph(id='correlation_graph'),
+            ], id='Graph1', style={'width': '50%'}, className='pretty_box'),
+        ], id='3th row'),
+            html.Div([
+                    html.Br(),
+                        html.Label('Year Range Slider'),
+                        slider_year
+    ], style={'width': '45%'})
 
         #html.Img(
             #src=app.get_asset_url("colorbar.png"),
@@ -106,11 +103,11 @@ def update_graph(year):
 ############################################First Bar Plot##########################################################
 
 
-    corr_fig = px.scatter(df_0, x="temp_diff", y="GHG", size="gdp_test", color="continent",
-           hover_name="Country", log_x=False, log_y=True, size_max=100, range_x =[-3,5],
+    corr_fig = px.scatter(df_0, x="temp_diff", y="GHG", size="gdp_test", color="continent", title='Correlation between average temperature difference and GHG Emissions',
+           hover_name="Country", log_x=False, size_max=100, range_x =[-3,5],
                   labels={
                      "temp_diff": "Increase in average temperature between " + str(year[0]) + " and " + str(year[1]),
-                     "GHG": "Greenhouse Gases Emissions (log10 scale)"
+                     "GHG": "Greenhouse Gases Emissions"
                       }, custom_data=['Country', 'gdp'])
 
     corr_fig.add_vline(x=0,line_width=1, line_dash="dash",opacity=0.7)
@@ -130,8 +127,6 @@ def update_graph(year):
             "Greenhouse Gases Emissions: %{y}",
         ])
     )
-
-    corr_fig.update_yaxes(type="log", range=[0, 20])  # log range: 10^0=1, 10^20=100000000000000000000
 
     return go.Figure(data=corr_fig, layout=corr_layout)
 
