@@ -36,7 +36,7 @@ slider_year = dcc.RangeSlider(
         marks={str(i): '{}'.format(str(i)) for i in
                [1960, 1970, 1980, 1990, 2000, 2013]},
         value=[1960, 2013],
-        step=1
+        step=1,
     )
 
 ##################################################APP###################################################################
@@ -46,10 +46,6 @@ app = dash.Dash(__name__)
 server = app.server
 
 app.layout = html.Div([
-
-    html.Div([
-            html.H1('Correlation between GHG emission and Increase in average temperature with gdp as element size'),
-        ], id='1st row', style={'width': '50%'}, className='pretty_box'),
     html.Div([
         html.Div([
             dcc.Graph(id='correlation_graph'),
@@ -59,7 +55,7 @@ app.layout = html.Div([
             html.Br(),
                 html.Label('Year Range Slider'),
                 slider_year
-    ], style={'width': '50%'})
+    ], style={'width': '45%'})
 ])
 
 
@@ -81,11 +77,13 @@ def update_graph(year):
 
 
     corr_fig = px.scatter(df_0, x="temp_diff", y="GHG", size="gdp_test", color="continent",
-           hover_name="Country", log_x=False, size_max=100,
+           hover_name="Country", log_x=False, size_max=100, range_x =[-3,5],
                   labels={
-                     "temp_diff": "Increase in average temperature between " + str(year[0]) + " and " + str(year[1]) + " years",
+                     "temp_diff": "Increase in average temperature between " + str(year[0]) + " and " + str(year[1]),
                      "GHG": "Greenhouse Gases Emissions"
                       }, custom_data=['Country', 'gdp'])
+
+    corr_fig.add_vline(x=0,line_width=1, line_dash="dash",opacity=0.7)
 
 
     corr_layout = dict(title=dict(text='Correlation between average temperature difference and GHG Emissions '),
