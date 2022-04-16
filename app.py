@@ -47,12 +47,20 @@ slider_year = dcc.RangeSlider(
 
 
 app.layout = html.Div([
+
+    html.Div([
+            html.H1('Global Temperature change and fatal effect on Climate'),
+        ], id='1st row', style={'textAlign': 'center'}, className='pretty_box'),
     html.Div(id='output-container-date-picker-single'),
     dcc.Graph(
         id='map',
         figure=world['figure'],
         style={'width':'99vw','height':'97vh'}
     ),
+    html.Br(),
+    html.Div([
+                html.H3('Correlation between average temperature difference and GHG Emissions'),
+            ], id='2nd row', style={'display': 'flex'}, className='pretty_box'),
     html.Div([
         html.Div([
             dcc.Graph(id='correlation_graph'),
@@ -98,11 +106,10 @@ def update_graph(year):
     corr_fig.add_vline(x=0,line_width=1, line_dash="dash",opacity=0.7)
 
 
-    corr_layout = dict(title=dict(text='Correlation between average temperature difference and GHG Emissions '),
-                                    xaxis=dict(title='Average Temperature'),
-                                    yaxis=dict(title="GHG Emission",
-                                    paper_bgcolor='rgba(0,0,0,0)',
-                                    plot_bgcolor='rgba(0,0,0,0)'
+    corr_layout = dict(xaxis=dict(title='Average Temperature'),
+                       yaxis=dict(title="GHG Emission",
+                       paper_bgcolor='rgba(0,0,0,0)',
+                       plot_bgcolor='rgba(0,0,0,0)'
                               ))
 
     corr_fig.update_traces(
