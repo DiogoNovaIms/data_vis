@@ -1,20 +1,21 @@
 body {
-    background-color: #cfd8dc;
+    background-color: #f1eeed;
 }
 
 .title_box{
     border-radius: 1px;
-    background-color: #f3f3f1;
+    background-color: #ffffff;
     margin: 1%;
     padding: 1%;
     position: relative;
     box-shadow: 1px 1px 1px slategrey;
-    font-family: "verdana"
+    font-family: "verdana";
+    height:30px;
 }
 
 .pretty_container {
     border-radius: 5px;
-    background-color: #f3f3f1;
+    background-color: #ffffff;
     margin: 1%;
     padding: 1%;
     position: relative;

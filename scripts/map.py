@@ -214,6 +214,12 @@ def create_final(df,mapbox_token,geo_json,attribute):
                 ),
                 text=plot_df["Country"],
                 marker_color = "rgb(235,0,100)",
+                customdata=[plot_df['Country'], plot_df['GHG'],plot_df["AverageTemperature"]],
+                hovertemplate="<br>".join([
+                    "Country: %{customdata[0]}",
+                    "Greenhouses Gases Emissions: %{customdata[1]}",
+                    "Average Temperature: %{customdata[2]}",
+                ])
             ),
             go.Bar(
                 x = bar_df["GHG"],
@@ -279,23 +285,11 @@ def create_final_no_bar(df,mapbox_token,geo_json,attribute,df_global):
         customdata=plot_df[attribute],
         text=plot_df["Country"],
         hovertemplate="%{text}<br>Average Temperature: %{customdata}°C",
+        hoverinfo="none",
         colorscale="RdBu",
         reversescale=True,
         showscale=False,
         subplot="mapbox",
-        name="choroplethmapbox",
-        colorbar=dict(outlinewidth=1,
-            outlinecolor="#333333",
-            len=0.9,
-            lenmode="fraction",
-            orientation="h",
-            xanchor="center",
-            yanchor="bottom",
-            bgcolor=None,
-            y=0.05,
-            #title=dict(text="Cases",
-            #            font=dict(size=14))
-        )
     ),
 
     go.Scattermapbox(
@@ -308,9 +302,11 @@ def create_final_no_bar(df,mapbox_token,geo_json,attribute,df_global):
             opacity=0.7,
             color = "rgb(235,0,100)",
         ),
-        text=plot_df["Country"],
         subplot="mapbox",
         name="scattermapbox",
+        text=plot_df["Country"],
+        customdata=plot_df['GHG'],
+        hovertemplate="%{text}<br>GHG emissions: %{customdata}",
     ),
 
     go.Table(
@@ -351,7 +347,7 @@ def create_final_no_bar(df,mapbox_token,geo_json,attribute,df_global):
         header = dict(values=[["Most emissions"]],
                       fill_color='white',
                       font=dict(color='black', size=15),align="center"),
-        cells = dict(values=[[most_emissions_data["Country"] +" (" + str(round(most_emissions/1000000000,2))+" billion)" ]], 
+        cells = dict(values=[[most_emissions_data["Country"] +" (" + str(round(most_emissions/1000000000,2))+" billion MT)" ]], 
         align="center",
         fill_color="white"),
         name = "table",
@@ -474,8 +470,13 @@ def create_final_no_bar(df,mapbox_token,geo_json,attribute,df_global):
                     sizemin=2,
                     opacity=0.7
                 ),
-                text=plot_df["Country"],
                 marker_color = "rgb(235,0,100)",
+                text=plot_df["Country"],
+                customdata=plot_df['GHG'],
+                hovertemplate="%{text}<br>GHG emissions: %{customdata}",
+
+                
+
             ),
             go.Table(
                 cells = dict(values=[[hottest_data["Country"] +" (" + str(hottest_temperature)+" C°)" ]],

@@ -53,7 +53,7 @@ slider_year = dcc.RangeSlider(
 app.layout = html.Div([
 
     html.Div([
-        html.H3('Worldwide Average Temperature Evolution from 1900 to 2010'),
+        html.H3('Worldwide Average Temperature and Greenhouse Gas Emissions evolution from 1900 to 2010'),
         dcc.Graph(
             id='map',
             figure=world['figure'],
@@ -80,18 +80,7 @@ app.layout = html.Div([
 
     html.Div(
         [
-            html.H3("Authors", style={"margin-top": "0", "text-align": "center"}),
-
-            html.P(
-                "Diogo Hipólito (m20210633@novaims.unl.pt)  -  Guzel Bayazitova (m20210699novaims.unl.pt)  -  Jessica Routzahn (m20210987@novaims.unl.pt)  -  Mohamed Ali Felfel (m20211322@novaims.unl.pt)",
-                style={"text-align": "center", "font-size": "10pt"}),
-
-        ],
-        className="pretty_container",
-    ),
-    html.Div(
-        [
-            html.H3("Sources", style={"margin-top": "0", "text-align": "center"}),
+            html.H3("Sources", style={"margin-top": "0", "text-align": "left"}),
             dcc.Markdown(
                 """\
                      - Climate Change: Earth Surface Temperature Data: https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data?select=GlobalLandTemperaturesByCity.csv
@@ -100,7 +89,21 @@ app.layout = html.Div([
                      
                      - ALL NATURAL DISASTERS 1900-2021 / EOSDIS: https://www.kaggle.com/datasets/brsdincer/all-natural-disasters-19002021-eosdis
                     """
-                , style={"font-size": "10pt"}),
+                , style={"font-size": "8pt"}),
+
+            html.H3("Authors", style={"margin-top": "0", "text-align": "left"}),
+            dcc.Markdown(
+                """\
+                     - Diogo Hipólito (m20210633@novaims.unl.pt)
+                     
+                     - Guzel Bayazitova (m20210699novaims.unl.pt)
+                     
+                     - Jessica Routzahn (m20210987@novaims.unl.pt)
+
+                     - Mohamed Ali Felfel (m20211322@novaims.unl.pt)
+                    """
+                , style={"font-size": "8pt"}),
+
 
         ],
         className="pretty_container",
