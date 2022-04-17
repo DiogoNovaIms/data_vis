@@ -95,7 +95,9 @@ app.layout = html.Div([
             dcc.Markdown(
                 """\
                      - Climate Change: Earth Surface Temperature Data: https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data?select=GlobalLandTemperaturesByCity.csv
+                     
                      - CO2 and GHG emission data: https://www.kaggle.com/datasets/srikantsahu/co2-and-ghg-emission-data
+                     
                      - ALL NATURAL DISASTERS 1900-2021 / EOSDIS: https://www.kaggle.com/datasets/brsdincer/all-natural-disasters-19002021-eosdis
                     """
                 , style={"font-size": "10pt"}),
