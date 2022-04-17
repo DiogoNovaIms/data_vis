@@ -77,6 +77,32 @@ app.layout = html.Div([
                 style={'height':'60vh'}),
             ], id='Graph2',className="second_row_containers"),
         ], id='3rd row'),
+
+    html.Div(
+        [
+            html.H3("Authors", style={"margin-top": "0", "text-align": "center"}),
+
+            html.P(
+                "Diogo Hipólito (m20210633@novaims.unl.pt)  -  Guzel Bayazitova (m20210699novaims.unl.pt)  -  Jessica Routzahn (m20210987@novaims.unl.pt)  -  Mohamed Ali Felfel (m20211322@novaims.unl.pt)",
+                style={"text-align": "center", "font-size": "10pt"}),
+
+        ],
+        className="pretty_container",
+    ),
+    html.Div(
+        [
+            html.H3("Sources", style={"margin-top": "0", "text-align": "center"}),
+            dcc.Markdown(
+                """\
+                     - Climate Change: Earth Surface Temperature Data: https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data?select=GlobalLandTemperaturesByCity.csv
+                     - CO2 and GHG emission data: https://www.kaggle.com/datasets/srikantsahu/co2-and-ghg-emission-data
+                     - ALL NATURAL DISASTERS 1900-2021 / EOSDIS: https://www.kaggle.com/datasets/brsdincer/all-natural-disasters-19002021-eosdis
+                    """
+                , style={"font-size": "10pt"}),
+
+        ],
+        className="pretty_container",
+    ),
            
 
         #html.Img(
