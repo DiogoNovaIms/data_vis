@@ -71,13 +71,13 @@ app.layout = html.Div([
         html.Div([
             html.Div([
                 dcc.Graph(id='correlation_graph'),
-            ], id='Graph1', style={'width': '50%'}),
+            ], id='Graph1', style={'width': '48%'}),
         ], id='3th row'),
             html.Div([
                     html.Br(),
                         html.Label('Year Range Slider'),
                         slider_year
-    ], style={'width': '45%'})
+    ], style={'width': '48%'})
 
         #html.Img(
             #src=app.get_asset_url("colorbar.png"),
