@@ -71,7 +71,7 @@ app.layout = html.Div([
         html.Div([
             html.Div([
                 dcc.Graph(id='correlation_graph'),
-            ], id='Graph1', style={'width': '50%'}, className='pretty_box'),
+            ], id='Graph1', style={'width': '50%'}),
         ], id='3th row'),
             html.Div([
                     html.Br(),
@@ -83,7 +83,7 @@ app.layout = html.Div([
             #src=app.get_asset_url("colorbar.png"),
             #style={'height':'50%','width':'70%','textAlign':'center'}
             #)
-    ])
+    ], className="pretty_container")
 
 
 
