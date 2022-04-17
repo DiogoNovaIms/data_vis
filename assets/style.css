@@ -2,6 +2,16 @@ body {
     background-color: #cfd8dc;
 }
 
+.title_box{
+    border-radius: 1px;
+    background-color: #f3f3f1;
+    margin: 1%;
+    padding: 1%;
+    position: relative;
+    box-shadow: 1px 1px 1px slategrey;
+    font-family: "verdana"
+}
+
 .pretty_container {
     border-radius: 5px;
     background-color: #f3f3f1;
@@ -9,4 +19,39 @@ body {
     padding: 1%;
     position: relative;
     box-shadow: 1px 1px 1px slategrey;
+    font-family: "verdana"
+}
+
+h3{
+    margin-top: 0px;
+    margin-bottom: 10px;
+  }
+
+.first_row_containers {
+    width:1440px;
+    height:580px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    margin: 1%;
+    padding: 1%;
+    position: relative;
+    box-shadow: 1px 1px 1px slategrey;
+    font-family: "Arial";
+    text-align: center;
+    color: rgb(85, 82, 82);
+}
+
+.second_row_containers {
+    height: 500px;
+    width:690px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    margin: 1%;
+    padding: 1%;
+    position: relative;
+    box-shadow: 1px 1px 1px slategrey;
+    font-family: "verdana";
+    display: inline-block;
+    margin-top: 5px;
+
 }

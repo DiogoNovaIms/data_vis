@@ -24,6 +24,9 @@ world = ud.load_pickle("map_info.p")
 raw_dataset_path = ud.RAW_PATH + ud.config['path']['correlation']
 df = pd.read_csv(raw_dataset_path)
 
+disasters_path = ud.RAW_PATH + ud.config['path']['disasters']
+df_disasters = pd.read_csv(disasters_path)
+
 
 
 #WHATEVER YOU DO, DO NOT DELETE THIS
@@ -46,48 +49,66 @@ slider_year = dcc.RangeSlider(
 
 
 
+
 app.layout = html.Div([
 
     html.Div([
-            html.H1('Global Temperature and its fatal effect on the Climate Change'),
-        ], id='1st row', style={'textAlign': 'center'}, className='pretty_box'),
-    html.Br(),
-        html.Div([
-            html.Div([
-                html.H3('Disasters and GDP per country'),
-            ], id='2nd row', style={'width': '20%'}, className='pretty_box'),
-                html.Div(id='output-container-date-picker-single'),
-                html.H3('Worldwide Greenhouse Gases Emissions from 1900 to 2013 years '),
-                ], id='title_map', style={'textAlign': 'center'}, className='pretty_box'),
-                html.Div([
-                    dcc.Graph(
-                        id='map',
-                        figure=world['figure'],
-                        style={'width':'99vw','height':'97vh'}
-                    ),
-        ]),
-
-    html.Br(),
+        html.H3('Worldwide Average Temperature Evolution from 1900 to 2010'),
+        dcc.Graph(
+            id='map',
+            figure=world['figure'],
+            style={'height':'97%','width':'93.5vw'}
+        ),
+    ],className='first_row_containers',
+),
         html.Div([
             html.Div([
                 dcc.Graph(id='correlation_graph'),
-            ], id='Graph1', style={'width': '48%'}),
-        ], id='3th row'),
+                slider_year,
+            ], id='Graph1',className="second_row_containers"),
             html.Div([
-                    html.Br(),
-                        html.Label('Year Range Slider'),
-                        slider_year
-    ], style={'width': '48%'})
+                dcc.Dropdown(
+                    options=[{'label': c, 'value': c}
+                              for c in (df_disasters['Country'].unique())],
+                    value='World',
+                id = 'dropdown_countries',
+                ),
+                dcc.Graph(id='disasters_graph',
+                style={'height':'60vh'}),
+            ], id='Graph2',className="second_row_containers"),
+        ], id='3rd row'),
+           
 
         #html.Img(
             #src=app.get_asset_url("colorbar.png"),
             #style={'height':'50%','width':'70%','textAlign':'center'}
             #)
-    ], className="pretty_container")
+    ], )
 
 
 
 ######################################################Callbacks#########################################################
+@app.callback(
+    dash.dependencies.Output("disasters_graph", 'figure'),
+    [dash.dependencies.Input('dropdown_countries', 'value')
+    ]
+)
+def update_disasters_graph(country):
+
+    df_country = df_disasters.loc[df_disasters["Country"]==country]
+    
+    fig_data = px.bar(df_country, x="Year", y="Count", color="Disaster Type",title="Natural Disasters frequency: " + str(country),
+        category_orders={"Disaster Type": ["Flood","Storm","Earthquake","Epidemic","Landslide","Animal accident"]}, range_x=[1979,2022])
+    
+    fig_layout = dict(#xaxis=dict(title='Average Temperature'),
+                       yaxis=dict(title="",
+                       paper_bgcolor='rgba(0,0,0,0)',
+                       plot_bgcolor='rgba(0,0,0,0)'
+                              ))
+
+    return go.Figure(data=fig_data,layout=fig_layout)
+
+
 
 @app.callback(
     dash.dependencies.Output("correlation_graph", 'figure'),

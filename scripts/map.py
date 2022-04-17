@@ -5,6 +5,7 @@ from plotly import graph_objs as go
 import utilds_data as ud
 from logzero import logger
 from plotly.subplots import make_subplots
+from PIL import Image
 
 def get_yearly_data(df_raw):
 
@@ -95,11 +96,15 @@ def create_final(df,mapbox_token,geo_json,attribute):
     ),
 
     go.Table(
-        cells = dict(values=[["Hottest Country",""],[hottest_data["Country"],str(hottest_temperature)+" C°"]],
-        align="center"),
+        header = dict(values=[["Hottest Country"]],
+                      fill_color='white',
+                      font=dict(color='black', size=15),),
+        cells = dict(values=[[hottest_data["Country"] +" (" + str(hottest_temperature)+" C°)" ]], 
+        align="center",
+        fill_color="white"),
         name = "table",
-        domain = dict(x=[0,0.19],
-                      y=[0,0.5])
+        domain = dict(x=[0.30,0.49],
+                      y=[0.1,0.2])
     )
     ]
 
@@ -122,7 +127,7 @@ def create_final(df,mapbox_token,geo_json,attribute):
             pitch=0,
             domain={
                 'x': [0.2, 1],
-                'y': [0, 1]
+                'y': [0.2, 1]
             }
 
         ),
@@ -158,10 +163,10 @@ def create_final(df,mapbox_token,geo_json,attribute):
             redraw=True),
             mode="immediate")]
         )],
-        direction="left",
-        #pad={"r": 10, "t": 35},
+        direction="right",
+        pad={"r":150,"t": 40},
         showactive=False,
-        x=0.1,
+        x=0.2,
         xanchor="right",
         y=0,
         yanchor="top"
@@ -169,14 +174,14 @@ def create_final(df,mapbox_token,geo_json,attribute):
 
     sliders_dict = dict(active=len(years) - 1,
                         visible=True,
-                        yanchor="top",
+                        yanchor="bottom",
                         xanchor="left",
                         currentvalue=dict(font=dict(size=20),
                                         prefix="Date: ",
                                         visible=True,
                                         xanchor="right"),
-                        pad=dict(b=10,t=10,l=20),
-                        len=0.875,
+                        pad=dict(b=300,l=150),
+                        len=0.975,
                         x=0,
                         y=0,
                         steps=[])
@@ -216,7 +221,8 @@ def create_final(df,mapbox_token,geo_json,attribute):
                 orientation="h",
             ),
             go.Table(
-                cells = dict(values=[["Hottest Country",""],[hottest_data["Country"],str(hottest_temperature)+" C°"]],
+                header = dict(values=[["Hottest Country"]]),
+                cells = dict(values=[[hottest_data["Country"] +" (" + str(hottest_temperature)+" C°)" ]],
                 align="center"),
             ),
 
@@ -245,14 +251,25 @@ def create_final(df,mapbox_token,geo_json,attribute):
 
     return fig
 
-
-def create_map_new(df,mapbox_token,geo_json,attribute):
-    fig = go.Figure
+def create_final_no_bar(df,mapbox_token,geo_json,attribute,df_global):
 
     years = np.sort(df["year"].unique())
     plot_df = df[df["year"]==years[-1]]
 
-    fig_data = [
+    hottest_temperature = plot_df["AverageTemperature"].max()
+    hottest_data = plot_df.loc[plot_df["AverageTemperature"]==hottest_temperature]
+
+    coldest_temperature = plot_df["AverageTemperature"].min()
+    coldest_data = plot_df.loc[plot_df["AverageTemperature"]==coldest_temperature]
+
+    most_emissions = plot_df["GHG"].max()
+    most_emissions_data = plot_df.loc[plot_df["GHG"]==most_emissions]
+
+    plot_df_global = df_global[df_global["year"]==years[-1]]
+
+    average_temperature = plot_df_global["LandAndOceanAverageTemperature"].mean()
+
+    data = [
         go.Choroplethmapbox(
         geojson=geo_json,
         locations=plot_df["Country"],
@@ -260,12 +277,13 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         zmin=-40,
         zmax=40,
         customdata=plot_df[attribute],
-        name="",
         text=plot_df["Country"],
         hovertemplate="%{text}<br>Average Temperature: %{customdata}°C",
         colorscale="RdBu",
         reversescale=True,
         showscale=False,
+        subplot="mapbox",
+        name="choroplethmapbox",
         colorbar=dict(outlinewidth=1,
             outlinecolor="#333333",
             len=0.9,
@@ -280,7 +298,6 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         )
     ),
 
-    
     go.Scattermapbox(
         lat = plot_df["Latitude"],
         lon = plot_df["Longitude"],
@@ -288,30 +305,108 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
         marker=go.scattermapbox.Marker(
             size= plot_df["GHG"]*300/df["GHG"].max(),
             sizemin=2,
-            opacity=0.7
+            opacity=0.7,
+            color = "rgb(235,0,100)",
         ),
         text=plot_df["Country"],
-        marker_color = "rgb(235,0,100)",
+        subplot="mapbox",
+        name="scattermapbox",
     ),
+
+    go.Table(
+        header = dict(values=[["Hottest Country"]],
+                      fill_color='white',
+                      font=dict(color='black', size=15),align="center"),
+        cells = dict(values=[[hottest_data["Country"] +" (" + str(hottest_temperature)+" C°)" ]], 
+        align="center",
+        fill_color="white"),
+        name = "table",
+        domain = dict(x=[0,0.2],
+                      y=[0,0.13])
+    ),
+    go.Table(
+        header = dict(values=[["Coldest Country"]],
+                      fill_color='white',
+                      font=dict(color='black', size=15),align="center"),
+        cells = dict(values=[[coldest_data["Country"] +" (" + str(coldest_temperature)+" C°)" ]], 
+        align="center",
+        fill_color="white"),
+        name = "table",
+        domain = dict(x=[0.2,0.4],
+                      y=[0,0.13],)
+    ),
+    go.Table(
+        header = dict(values=[["Current year"]],
+                      fill_color='white',
+                      font=dict(color='black', size=20),align="center"),
+        cells = dict(values=[[str(2010)]], 
+        align="center",
+        fill_color="white",
+        font=dict(size=20)),
+        name = "table",
+        domain = dict(x=[0.4,0.6],
+                      y=[0,0.13],)
+    ),
+    go.Table(
+        header = dict(values=[["Most emissions"]],
+                      fill_color='white',
+                      font=dict(color='black', size=15),align="center"),
+        cells = dict(values=[[most_emissions_data["Country"] +" (" + str(round(most_emissions/1000000000,2))+" billion)" ]], 
+        align="center",
+        fill_color="white"),
+        name = "table",
+        domain = dict(x=[0.6,0.8],
+                      y=[0,0.13],)
+    ),
+    go.Table(
+        header = dict(values=[["Average temperature"]],
+                      fill_color='white',
+                      font=dict(color='black', size=15),align="center"),
+        cells = dict(values=[[str(round(average_temperature,2))+" C°" ]], 
+        align="center",
+        fill_color="white"),
+        name = "table",
+        domain = dict(x=[0.8,1],
+                      y=[0,0.13],)
+    ),
+
     ]
 
-    #Layout
-    fig_layout = go.Layout(
-        mapbox_style="light",
-        mapbox_accesstoken=mapbox_token,
-        #mapbox_center={"lat": 37.0902, "lon": -95.7129},
-        margin={"r":0,"t":0,"l":0,"b":0},
+    layout = go.Layout(
+        autosize=True,
+        showlegend=False,
+        hovermode="closest",
+        plot_bgcolor='rgba(0,0,0,0)',
+        margin = dict(
+            l = 0,        # left
+            r = 0,        # right
+            t = 0,        # top
+            b = 0,        # bottom
+        ),
+        mapbox=dict(
+
+            style="light",
+            accesstoken=mapbox_token,
+            bearing=0,
+            pitch=0,
+            domain={
+                'x': [0, 1],
+                'y': [0.15, 1]
+            }
+
+        ),
     )
 
+
     #Update menus
-    fig_layout["updatemenus"] = [dict(
+    layout["updatemenus"] = [dict(
         type="buttons",
         buttons=[dict(
             label="Play",
             method="animate",
             args=[None,
-            dict(frame=dict(duration=300,
-            redraw=True),fromcurrent=True)]
+            dict(frame=dict(duration=250,
+            redraw=True),fromcurrent=True),dict(transition=dict(duration=0,redraw=True),fromCurrent=True)]
         ),
         dict(
             label="Pause",
@@ -321,41 +416,54 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
             redraw=True),
             mode="immediate")]
         )],
-        direction="left",
-        #pad={"r": 10, "t": 35},
+        direction="right",
+        pad={"r":150,"t": 40},
         showactive=False,
-        x=0.1,
+        x=0.2,
         xanchor="right",
-        y=0,
+        y=0.08,
         yanchor="top"
     )]
 
-    sliders_dict = dict(active=len(years) - 1,
+    sliders_dict = dict(active=2010,
                         visible=True,
                         yanchor="top",
-                        xanchor="center",
-                        currentvalue=dict(font=dict(size=20),
-                                        prefix="Date: ",
+                        xanchor="left",
+                        currentvalue=dict(font=dict(size=20,color="white"),
                                         visible=True,
                                         xanchor="right"),
-                        pad=dict(b=10,t=10),
-                        len=0.875,
+                        pad=dict(b=10,l=150),
+                        len=0.975,
                         x=0,
-                        y=0,
+                        y=0.11,
                         steps=[])
     
     fig_frames = []
-    for year in years:
+    steps = []
+    for year in range(years[0],years[-1],5):#range(years[0],years[-1],10):
+
         plot_df = df[df["year"]==year]
+
+        hottest_temperature = plot_df["AverageTemperature"].max()
+        hottest_data = plot_df.loc[plot_df["AverageTemperature"]==hottest_temperature]
+
+        coldest_temperature = plot_df["AverageTemperature"].min()
+        coldest_data = plot_df.loc[plot_df["AverageTemperature"]==coldest_temperature]
+
+        most_emissions = plot_df["GHG"].max()
+        most_emissions_data = plot_df.loc[plot_df["GHG"]==most_emissions]
+
+        plot_df_global = df_global[df_global["year"]==year]
+
+
         frame = go.Frame(data=[
             go.Choroplethmapbox(
                 locations=plot_df["Country"],
                 z=plot_df[attribute],
                 customdata=plot_df[attribute],
-                name="",
+                #name="",
                 text=plot_df["Country"],
-                showscale=False,
-        
+                #showscale=False,
             ),
             go.Scattermapbox(
                 lat = plot_df["Latitude"],
@@ -368,10 +476,32 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
                 ),
                 text=plot_df["Country"],
                 marker_color = "rgb(235,0,100)",
-            )
+            ),
+            go.Table(
+                cells = dict(values=[[hottest_data["Country"] +" (" + str(hottest_temperature)+" C°)" ]],
+                align="center"),
+            ),
+            go.Table(
+                cells = dict(values=[[coldest_data["Country"] +" (" + str(coldest_temperature)+" C°)" ]],
+                align="center"),
+            ),
+            go.Table(
+                cells = dict(values=[[str(year)]],
+                align="center"),
+            ),
+
+            go.Table(
+                cells = dict(values=[[most_emissions_data["Country"] +" (" + str(round(most_emissions/1000000000,2))+" billion)" ]],
+                align="center"),
+            ),
+
+            go.Table(
+                cells = dict(values=[[str(round(plot_df_global["LandAndOceanAverageTemperature"].mean(),2))+" C°" ]]), 
+            ),
 
             ],
-            name=str(year))
+            name=str(year),
+            traces = [0, 1, 2, 3, 4, 5, 6, 7])
 
         fig_frames.append(frame)
 
@@ -384,17 +514,26 @@ def create_map_new(df,mapbox_token,geo_json,attribute):
             label=str(year)
         )
 
-        sliders_dict["steps"].append(slider_step)
+        steps.append(slider_step)
 
-    
-    fig_layout.update(sliders=[sliders_dict])
+    sliders_dict["steps"] = steps
 
+    layout.update(sliders=[sliders_dict])
 
-    fig = go.Figure(data=fig_data, layout=fig_layout, frames=fig_frames)
+    fig = go.Figure(data=data,layout=layout,frames=fig_frames)
 
+    fig.add_layout_image(
+        dict(
+            source=Image.open("assets/colorbar_good.png"),
+            xref="paper", yref="paper",
+            x=0.5, y=0.15,
+            sizex=1, sizey=1,
+            opacity=0.7,
+            xanchor="center", yanchor="bottom"
+        )
+    )
 
     return fig
-
 
 if __name__ == "__main__":
 
@@ -402,7 +541,9 @@ if __name__ == "__main__":
     mapbox_token = ud.config['mapbox']['token']
     raw_dataset_path = ud.RAW_PATH + ud.config['path']['name']
     geo_world = ud.RAW_PATH + ud.config['geoworld']['name']
+    global_data = ud.RAW_PATH + ud.config['path']['global']
 
+    df_global = pd.read_csv(global_data)
     df_raw = pd.read_csv(raw_dataset_path)
 
     with open(geo_world) as world_file:
@@ -412,7 +553,7 @@ if __name__ == "__main__":
     #Create the map figure
 
     #df = get_temperature_diff_between(df,1900,2000)
-    fig_map = create_final(df_raw,mapbox_token,world,"AverageTemperature")   
+    fig_map = create_final_no_bar(df_raw,mapbox_token,world,"AverageTemperature",df_global)   
     #fig_map = get_map_from_date(df_raw,mapbox_token,world)
 
     save_map = {
