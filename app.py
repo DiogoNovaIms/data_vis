@@ -152,7 +152,8 @@ def update_graph(year):
 
     df_0["gdp"] = round(df_0["gdp"] / 1000000000, 2)
     df_0["gdp_test"] = df_0["gdp"] * 2
-    df["temp_diff"] = round(df["temp_diff"], 2)
+    df_0["temp_diff"] = round(df_0["temp_diff"], 2)
+
 ############################################First Bar Plot##########################################################
 
 
@@ -177,7 +178,7 @@ def update_graph(year):
             "Country: %{customdata[0]}",
             "GDP: %{customdata[1]} billion $",
             "Increase in average temperature: %{x} °C",
-            "Greenhouse Gases Emissions: %{y}",
+            "Greenhouse Gases Emissions: %{y} t",
         ])
     )
 
